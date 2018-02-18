@@ -1,0 +1,86 @@
+
+
+
+{% extends  'Header.html'%}
+
+{% block content %}
+      <section>
+    <!--for demo wrap-->
+    <h1>Work inventory  (Ordenes de compra) </h1>
+    <div class="tbl-header">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <thead>
+          <tr>
+            <tr >
+              <th class="cell100 column1">ID</th>
+              <th class="cell100 column1">Codigo</th>
+              <th class="cell100 column3">Descripcion</th>
+              <th class="cell100 column3">Unidad</th>
+
+              <th class="cell100 column1">Proveedor</th>
+
+              <th class="cell100 column3">Cantidad</th>
+              <th class="cell100 column3">Fecha</th>
+              <th class="cell100 column3">Numero de compra</th>
+              <th class="cell100 column3">Valor Unitario</th>
+              <th class="cell100 column3">Valor total</th>
+              <th class="cell100 column3">Valor total iva</th>
+
+              <th class="cell100 column3">Estado de compra</th>
+
+
+
+
+          </tr>
+        </thead>
+      </table>
+    </div>
+    <div class="tbl-content">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tbody>
+
+
+            {% for key in Inventory.keys() %}
+
+              <tr>
+                <td>{{Inventory[key]['ID']}}</td>
+                <td>{{Inventory[key]['Ident']}}</td>
+                <td>{{Inventory[key]['Description']}}</td>
+                <td>{{Inventory[key]['Units']}}</td>
+
+                <td>{{Inventory[key]['Name']}}</td>
+
+                <td>{{Inventory[key]['Amount']}}</td>
+                <td>{{Inventory[key]['Date']}}</td>
+                <td>{{Inventory[key]['Number_Compra']}}</td>
+
+                <td>{{Inventory[key]['Value_U']}}</td>
+                <td>{{Inventory[key]['Value_T']}}</td>
+                <td>{{Inventory[key]['Value_T_Iva']}}</td>
+
+
+                <td>{{Inventory[key]['State']}}</td>
+
+              </tr>
+
+
+            {% endfor %}
+
+
+
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+{% endblock %}
+
+  {% block footer %}
+
+  <div class="topnav">
+    <a href="http://127.0.0.1:8888/Create_Buy_Order">Crear Compra</a>
+    </div>
+
+
+  {% endblock%}
+s

@@ -1,0 +1,59 @@
+
+{% extends  'Header.html' %}
+
+{% block content %}
+
+    <section>
+  <!--for demo wrap-->
+  <h1>Work inventory (PRODUCTOS)</h1>
+  <div class="tbl-header">
+    <table cellpadding="0" cellspacing="0" border="0">
+      <thead>
+        <tr>
+          <tr >
+            <th>Codigo</th>
+            <th>Descripcion</th>
+            <th>Unidad</th>
+            <th>Entrada</th>
+            <th>Salida</th>
+            <th>Saldo</th>
+        </tr>
+      </thead>
+    </table>
+  </div>
+  <div class="tbl-content">
+    <table cellpadding="0" cellspacing="0" border="0">
+      <tbody>
+
+        {% for key in Inventory.keys() %}
+
+          <tr>
+            <td>{{Inventory[key]['Ident']}}</td>
+            <td>{{Inventory[key]['Description']}}</td>
+            <td>{{Inventory[key]['Units']}}</td>
+            <td>{{Inventory[key]['Tickets']}}</td>
+            <td>{{Inventory[key]['Departures']}}</td>
+            <td>{{Inventory[key]['Balance']}}</td>
+          </tr>
+
+
+        {% endfor %}
+
+
+
+
+      </tbody>
+    </table>
+  </div>
+</section>
+
+    {% endblock %}
+
+  {% block footer %}
+
+  <div class="topnav">
+    <a href="http://127.0.0.1:8888/Create_product">Crear Producto</a>
+    </div>
+
+
+  {% endblock%}
