@@ -29,7 +29,7 @@ class Provider(db.Model):
 
 
     Buy_Order= db.relationship('Buy_order', backref='Provider')
-    Requisition= db.relationship('Requisition', backref='Provider')
+
     Entrada = db.relationship('Tickets')
 
 
@@ -69,11 +69,11 @@ class Requisition(db.Model):
     amount =  db.Column(db.Integer)
     N_compra = db.Column(db.String(100), default=" ")
     Remision =  db.Column(db.String(100), default=" ")
-
     Products_id= db.Column(db.String(255), db.ForeignKey('Products.Identifier'))
-    Provider_id= db.Column(db.String(255), db.ForeignKey('Provider.Identifier'))
+    Solicitud_P = db.Column(db.String(100))
 
     Buy_Order = db.relationship('Buy_order')
+
 
 
 class Tickets(db.Model):

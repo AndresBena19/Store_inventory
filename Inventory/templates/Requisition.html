@@ -1,12 +1,12 @@
 {% extends  'Header.html'%}
 
 {% block search %}
+  {% from "_macro.html" import render %}
 <div class="topnav-right">
 
-
 <!-- Trigger the modal with a button -->
-<button type="button"  class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Search</button>
-  {% from "_macro.html" import render %}
+<button type="button"  class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Remision</button>
+
 <!-- Modal -->
 <div class="modal fade" id="myModal" role="dialog">
   <div class="modal-dialog">
@@ -30,7 +30,64 @@
 
   </div>
 </div>
+
+
+
+  <!-- Trigger the modal with a button -->
+  <button type="button"  class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal2">Requisicion</button>
+
+  <!-- Modal -->
+  <div class="modal fade" id="myModal2" role="dialog">
+    <div class="modal-dialog">
+
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Busqueda</h4>
+        </div>
+        <div class="modal-body">
+          <form  name="sentMessage" id="contactFrom" method="POST">
+            {{render(form.Requisicion, class='form-control')}}
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-default">Enviar</button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Trigger the modal with a button -->
+  <button type="button"  class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal3">Borrar</button>
+
+  <!-- Modal -->
+  <div class="modal fade" id="myModal3" role="dialog">
+    <div class="modal-dialog">
+
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Busqueda</h4>
+        </div>
+        <div class="modal-body">
+          <form  name="sentMessage" id="contactFrom" method="POST">
+            {{render(form.Delete_Re, class='form-control')}}
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-default">Enviar</button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
 </div>
+
 {% endblock %}
 {% block content %}
       <section>
@@ -55,8 +112,7 @@
 
               <th class="cell100 column3">fecha</th>
 
-              <th class="cell100 column3">proveedor</th>
-
+              <th class="cell100 column3">Numero de Solicitud</th>
               <th class="cell100 column3">Numero de Requisicion</th>
               <th class="cell100 column3">Numero de Remision</th>
               <th class="cell100 column3">Numero de compra</th>
@@ -79,13 +135,11 @@
                 <td>{{Inventory[key]['Description']}}</td>
                 <td>{{Inventory[key]['Units']}}</td>
                 <td>{{Inventory[key]['Amount']}}</td>
-
                 <td>{{Inventory[key]['Solicitud']}}</td>
                 <td>{{Inventory[key]['Ced']}}</td>
                 <td>{{Inventory[key]['Date']}}</td>
 
-                <td>{{Inventory[key]['Provider_Name']}}</td>
-
+                <td>{{Inventory[key]['Number_Solicitud']}}</td>
                 <td>{{Inventory[key]['Number_Requisition']}}</td>
                 <td>{{Inventory[key]['Remision']}}</td>
                 <td>{{Inventory[key]['Number_Compra']}}</td>

@@ -1,6 +1,39 @@
 
 {% extends  'Header.html' %}
+{% block search %}
+  {% from "_macro.html" import render %}
+    <div class="topnav-right">
 
+    <!-- Trigger the modal with a button -->
+    <button type="button"  class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Borrar</button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Busqueda</h4>
+          </div>
+          <div class="modal-body">
+            <form  name="sentMessage" id="contactFrom" method="POST">
+              {{render(form.Delete_P, class='form-control')}}
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-default">Enviar</button>
+              </div>
+            </form>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+{% endblock %}
 {% block content %}
 
     <section>
@@ -45,6 +78,8 @@
       </tbody>
     </table>
   </div>
+
+
 </section>
 
     {% endblock %}

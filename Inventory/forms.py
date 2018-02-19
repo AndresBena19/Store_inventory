@@ -24,7 +24,6 @@ class  Provider(Form):
 
 class  Make_ticket(Form):
 
-    Name = Identifier_P = StringField('Solicitado por', [validators.Required(message='falta campo'), validators.length(min=1, max=100)])
     Identifier_P = SelectField('Identificador Producto')
     Identifier_Pro = SelectField('Identificador Proveedor')
 
@@ -43,6 +42,8 @@ class  Departures_ticket(Form):
 
     builder = StringField('Contratista', [validators.Required(message='falta campo'), validators.length(min=1, max=100)])
     Destine = StringField('Destino', [validators.Required(message='falta campo'), validators.length(min=1, max=100)])
+
+
 
 
 
@@ -72,11 +73,23 @@ class Requisition(Form):
     Date  = DateField('Fecha Actual',format='%Y-%m-%d')
 
     Identifier_P = SelectField('Identificador Producto')
-    Identifier_Pro = SelectField('Identificador Proveedor')
+
+    N_Solicitud = StringField('Numero solicitud de pedido', [validators.Required(message='falta campo'), validators.length(min=1, max=100)])
+
 
     amount =StringField('Cantidad', [validators.Required(message='falta campo'), validators.length(min=1, max=100)])
+
 
 class Search(Form):
 
     compra = StringField('Ingrese el numero de compra', [validators.Required(message='falta campo'), validators.length(min=1, max=100)])
     Remision = StringField('Ingrese el numero de remision', [validators.Required(message='falta campo'), validators.length(min=1, max=100)])
+    Requisicion = StringField('Ingrese el numero de requisicion', [validators.Required(message='falta campo'), validators.length(min=1, max=100)])
+
+    Delete_Re = StringField('Ingrese el ID de la requisicion', [validators.Required(message='falta campo'), validators.length(min=1, max=100)])
+    Delete_Or= StringField('Ingrese el ID de Orden de compra', [validators.Required(message='falta campo'), validators.length(min=1, max=100)])
+    Delete_En= StringField('Ingrese el ID de entrada', [validators.Required(message='falta campo'), validators.length(min=1, max=100)])
+class Delete(Form):
+    Delete_P = StringField('Ingrese el ID del producto', [validators.Required(message='falta campo'), validators.length(min=1, max=100)])
+    Delete_Pro =  StringField('Ingrese el ID del Provedor', [validators.Required(message='falta campo'), validators.length(min=1, max=100)])
+    Delete_Sa = StringField('Ingrese el ID de la salida', [validators.Required(message='falta campo'), validators.length(min=1, max=100)])

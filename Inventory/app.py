@@ -4,7 +4,7 @@ from flask import Flask
 from flask import request
 from flask import render_template
 from flask import flash
-
+from flask import url_for
 import forms
 
 from config import DBconfig
@@ -20,37 +20,61 @@ db.init_app(app)
 app.config.from_object(DBconfig)
 
 
+
+
 def Get_products():
-    Product = {}
+    Temp = {}
     for key,name in db.session.query(Products.Identifier,Products.Description):
-        Product[key]=name
-    return list(Product.items())
+        Temp[key]=name
+
+    Product = list(Temp.items())
+    Product.sort(key=lambda x: x[1])
+
+    return Product
 
 def Get_provider():
-    Provider_new = {}
-    print("an")
+    Temp = {}
+
     for key, name in db.session.query(Provider.Identifier, Provider.Name):
-        print("an")
-        Provider_new[key]=name
-    return list(Provider_new.items())
+
+        Temp[key]=name
+    Provide = list(Temp.items())
+    Provide.sort(key=lambda x: x[1])
+
+    return Provide
 
 @app.route('/')
-@app.route('/Products', methods=['GET'])
+@app.route('/Products', methods=['GET','POST'])
 def Products_table():
-    if request.method == 'GET':
-        Product = {}
-        for Ident, Description ,Units, Tickets, Departures,Balance in  db.session.query(Products.Identifier, Products.Description, Products.Units, Products.Tickets_now, Products.Departures_now, Products.balance_now):
-                Temp = {}
-                Temp['Ident'] = Ident
-                Temp['Description'] = Description
-                Temp['Units'] = Units
-                Temp['Tickets'] = Tickets
-                Temp['Departures'] = Departures
-                Temp['Balance'] = Balance
+    del_P = forms.Delete(request.form)
 
-                Product[Ident] = Temp
+    if request.method == 'POST':
 
-    return render_template('Products.html', Inventory = Product)
+            PDU = Products.query.filter_by(Identifier =del_P.Delete_P.data).first()
+            if PDU != None:
+                Products.query.filter(Products.Identifier==del_P.Delete_P.data).delete()
+                db.session.commit()
+                flash("Producto " + PDU.Description + " Ha sido borrado exitosamente")
+            else:
+                flash("No existen valores para  borrar")
+
+    Product = {}
+    for Ident, Description ,Units, Tickets, Departures,Balance in  db.session.query(Products.Identifier, Products.Description, Products.Units, Products.Tickets_now, Products.Departures_now, Products.balance_now):
+        Temp = {}
+        Temp['Ident'] = Ident
+        Temp['Description'] = Description
+        Temp['Units'] = Units
+        Temp['Tickets'] = Tickets
+        Temp['Departures'] = Departures
+        Temp['Balance'] = Balance
+
+        Product[Ident] = Temp
+    return render_template('Products.html', Inventory = Product, form =del_P)
+
+
+
+
+
 
 
 
@@ -65,7 +89,9 @@ def Product_work():
             Product = Products( Identifier=loginform.Identifier.data, Description= loginform.Description.data, Units= loginform.Units.data)
             db.session.add(Product)
             db.session.commit()
+            flash("Creacion exitosa de " + loginform.Description.data)
         except sqlalchemy.exc.IntegrityError:
+
             flash("La clave de producto ya existe")
 
 
@@ -73,20 +99,33 @@ def Product_work():
     return render_template('Make_product.html', login=loginform)
 
 
-@app.route('/Provider', methods=['GET'])
+@app.route('/Provider', methods=['GET','POST'])
 def Provider_table():
-    if request.method == 'GET':
-        Provider_data = {}
-        for ID,Name,Ced,Address in  db.session.query(Provider.Identifier,Provider.Name,Provider.Ced,Provider.Address):
-                Temp = {}
-                Temp['ID'] = ID
-                Temp['Name'] = Name
-                Temp['Ced'] = Ced
-                Temp['Address'] = Address
 
-                Provider_data[ID] = Temp
+    del_Pro = forms.Delete(request.form)
+    if(request.method == 'POST'):
 
-    return render_template('Provider.html', Inventory = Provider_data)
+
+            PRO = Provider.query.filter_by(Identifier =del_Pro.Delete_Pro.data).first()
+            if PRO != None:
+                Provider.query.filter(Provider.Identifier==del_Pro.Delete_Pro.data).delete()
+                db.session.commit()
+                flash("Producto " + PRO.Name + " Ha sido borrado exitosamente")
+            else:
+                flash("No existen valores para  borrar")
+
+
+    Provider_data = {}
+    for ID,Name,Ced,Address in  db.session.query(Provider.Identifier,Provider.Name,Provider.Ced,Provider.Address):
+            Temp = {}
+            Temp['ID'] = ID
+            Temp['Name'] = Name
+            Temp['Ced'] = Ced
+            Temp['Address'] = Address
+
+            Provider_data[ID] = Temp
+
+    return render_template('Provider.html', Inventory = Provider_data, form=del_Pro )
 
 
 
@@ -101,6 +140,7 @@ def Provider_work():
             Provider_new = Provider(Identifier=Prividerform.Identifier.data, Name=Prividerform.Name.data, Ced= Prividerform.Ced.data, Address= Prividerform.Address.data)
             db.session.add(Provider_new)
             db.session.commit()
+            flash("Creacion exitosa de " + Prividerform.Name.data)
         except sqlalchemy.exc.IntegrityError:
             flash("La clave de producto ya existe")
 
@@ -110,12 +150,54 @@ def Provider_work():
 
 
 
-@app.route('/Tickets', methods=['GET'])
+@app.route('/Tickets', methods=['GET','POST'])
 def Tickets_table():
 
-    if request.method == 'GET':
-        Tickets_inventory = {}
-        for ID,date_stored,Amount,Number_remision,N_compra,Product_id,Provider_id in  db.session.query(Tickets.id,
+    Del_form = forms.Search(request.form)
+
+    if request.method == 'POST':
+            if(len(Del_form.Delete_En.data)>0):
+
+                    Entrada = Tickets.query.filter_by(id=Del_form.Delete_En.data).first()
+                    if Entrada != None:
+                        Product = Products.query.filter_by(Identifier=Entrada.Products_id).first()
+                        Order = Buy_order.query.filter(Buy_order.N_compra==Entrada.N_compra).all()
+
+                        Products.query.filter(Products.Identifier==Entrada.Products_id).update({"Tickets_now": Product.Tickets_now - Entrada.amount,"balance_now":Product.balance_now - Entrada.amount })
+
+
+                        for O in Order:
+
+                            try:
+                                Requisi = Requisition.query.filter(Requisition.N_compra==O.N_compra).all()
+                                for R in Requisi:
+                                    if(R.Products_id==Entrada.Products_id):
+                                        print ("LOL")
+                                        if(O.State == "Recibido"):
+
+                                            if((R.amount - Entrada.amount) == 0):
+                                                Buy_order.query.filter(Buy_order.Products_id==Entrada.Products_id).update({"State": str("No Recibido")})
+                                                R.Remision = " "
+                                        else:
+                                            print("i am here")
+                                            Buy_order.query.filter(Buy_order.Products_id==Entrada.Products_id).update({"State": int(O.State) + Entrada.amount})
+                                            R.Remision = " "
+
+                            except Exception:
+                                pass
+
+
+                        Tickets.query.filter(Tickets.id==Del_form.Delete_En.data).delete()
+
+
+                        db.session.commit()
+                        flash("Entrada # " +Del_form.Delete_En.data + " Ha sido borrado exitosamente")
+                    else:
+                        flash("No existen valores para  borrar")
+
+
+    Tickets_inventory = {}
+    for ID,date_stored,Amount,Number_remision,N_compra,Product_id,Provider_id in  db.session.query(Tickets.id,
                                                                                                                         Tickets.Date_stored,
                                                                                                                         Tickets.amount,
                                                                                                                         Tickets.Number_remision,
@@ -149,7 +231,7 @@ def Tickets_table():
 
                 Tickets_inventory[ID] = Temp
 
-    return render_template('Tickets.html', Inventory=Tickets_inventory)
+    return render_template('Tickets.html', Inventory=Tickets_inventory , form = Del_form )
 
 
 @app.route('/Create_Tickets', methods=['GET','POST'])
@@ -166,7 +248,7 @@ def Tickets_work():
         Ticket = Tickets(Date_stored=Ticketform.Date_stored.data,amount=Ticketform.amount.data,Number_remision=Ticketform.Number_remision.data,N_compra=Ticketform.N_Orde_Comprar.data,Products_id=Ticketform.Identifier_P.data,Provider_id=Ticketform.Identifier_Pro.data)
         db.session.add(Ticket)
 
-
+        print("HOLA")
         Product_now = Products.query.filter_by(Identifier= Ticketform.Identifier_P.data).first()
         Provider_now = Products.query.filter_by(Identifier= Ticketform.Identifier_Pro.data).first()
 
@@ -182,7 +264,6 @@ def Tickets_work():
             for Order in Order_new:
                 if(Order.Products_id == Ticketform.Identifier_P.data):
                     Buy=Order
-
 
 
 
@@ -203,8 +284,9 @@ def Tickets_work():
                     if(Total < 0):
                         flagtwo =True
                         flash("Esta recibiendo mas unidades de las presentes en al orden")
-                if(str(Buy.State) == "Recibido"):
-                    flash("Ya se recibio el pedido completamente")
+                    elif (str(Buy.State) == "Recibido"):
+                        flagtwo =True
+                        flash("Ya se recibio el pedido completamente")
 
                 if (int(Ticketform.amount.data) == Requisi.amount and (Ticketform.Identifier_P.data ==  Buy.Products_id) ):
 
@@ -226,8 +308,10 @@ def Tickets_work():
                             db.session.commit()
 
 
-
                 if(not flagtwo):
+                    print(flagtwo)
+                    print(Product_now.Tickets_now)
+                    print(int(Ticketform.amount.data))
                     Products.query.filter(Products.Identifier == Ticketform.Identifier_P.data).update({"Tickets_now":(Product_now.Tickets_now + int(Ticketform.amount.data))})
                     Products.query.filter(Products.Identifier == Ticketform.Identifier_P.data).update({"balance_now":(Product_now.balance_now + int(Ticketform.amount.data))})
 
@@ -245,11 +329,29 @@ def Tickets_work():
 
 
 
-@app.route('/Despartures', methods=['GET'])
+@app.route('/Despartures', methods=['GET','POST'])
 def Despartures_table():
-    if request.method == 'GET':
-        Depart_inventory = {}
-        for ID,date,amount,Number_vale,builder,Dest, Product_id in  db.session.query(Departures.id,
+
+    Del_Sa = forms.Delete(request.form)
+    if request.method == 'POST':
+
+            Sali = Departures.query.filter_by(id = Del_Sa.Delete_Sa.data ).first()
+            if Sali != None:
+                P= Products.query.filter_by(Identifier =Sali.Products_id ).first()
+
+                Departures.query.filter(Departures.id==Del_Sa.Delete_Sa.data).delete()
+                Products.query.filter(Products.Identifier==Sali.Products_id).update({"Departures_now" : P.Departures_now - Sali.amount , "balance_now": P.balance_now +  Sali.amount  })
+
+                db.session.commit()
+                flash("Producto " + Del_Sa.Delete_Sa.data + " Ha sido borrado exitosamente")
+            else:
+                flash("No existen valores para  borrar")
+
+
+
+
+    Depart_inventory = {}
+    for ID,date,amount,Number_vale,builder,Dest, Product_id in  db.session.query(Departures.id,
                                                                                                     Departures.date,
                                                                                                     Departures.amount,
                                                                                                     Departures.Number_vale,
@@ -275,7 +377,7 @@ def Despartures_table():
                 Depart_inventory[ID] = Temp
 
 
-    return render_template('Despartures.html', Inventory= Depart_inventory)
+    return render_template('Despartures.html', Inventory= Depart_inventory, form = Del_Sa)
 
 
 
@@ -333,7 +435,7 @@ def Buy_Order_work():
 
         try:
             Total = int(Buy_Orderform.Value_U.data)*int(Requisit.amount)
-            Total_Iva = (int(Total)* 0.19) + Total
+            Total_Iva = (int(Total)* 0.21) + Total
 
             Order = Buy_order(date=Buy_Orderform.Date.data,Value_U=int(Buy_Orderform.Value_U.data),Value_T=int(Total),Value_T_Iva=float(Total_Iva),N_compra=Buy_Orderform.N_Compra.data, Products_id=Buy_Orderform.Identifier_P.data,Provider_id=Buy_Orderform.Identifier_Pro.data,Requisition=Buy_Orderform.N_Requisition.data)
             db.session.add(Order)
@@ -352,10 +454,63 @@ def Buy_Order_work():
 def Buy_Order_table():
 
     search_form = forms.Search(request.form)
-    if request.method == 'GET':
+    if request.method == 'POST':
 
-        Orders = {}
-        for ID,date,N_Compra,Value_U,Value_T,Value_T_Iva,State,Product_id,Provider_id,Requisition_id in  db.session.query(Buy_order.id,
+
+        if(len(search_form.compra.data)>0):
+            Orders_two = {}
+
+            Buy_orders = Buy_order.query.filter_by(N_compra=search_form.compra.data).all()
+
+            for Order in Buy_orders:
+
+                Provider_v = Provider.query.filter_by(Identifier=Order.Provider_id).first()
+                Product = Products.query.filter_by(Identifier=Order.Products_id).first()
+                New_Requisition= Requisition.query.filter_by(N_Requisition=Order.Requisition).all()
+
+                for R in New_Requisition:
+                    if(R.Products_id == Product.Identifier):
+
+                        Temp = {}
+                        Temp['ID'] = Order.id
+                        Temp['Date'] = Order.date
+                        Temp['Amount'] = R.amount
+                        Temp['Number_Compra'] = Order.N_compra
+                        Temp['Value_U'] = Order.Value_U
+                        Temp['Value_T'] = Order.Value_T
+                        Temp['Value_T_Iva'] = Order.Value_T_Iva
+                        Temp['Requisition'] = R.N_Requisition
+
+                        Temp['Ident'] = Product.Identifier
+                        Temp['Name'] = Provider_v.Name
+                        Temp['Ced'] = Provider_v.Ced
+                        Temp['Address'] = Provider_v.Address
+                        Temp['Units'] = Product.Units
+                        Temp['Description'] = Product.Description
+
+                        Temp['State'] = Order.State
+
+                        Orders_two[Order.id] = Temp
+
+            return render_template('Buy_Order.html',Inventory = Orders_two , form=search_form)
+
+        if(len(search_form.Delete_Or.data)>0):
+
+                Order = Buy_order.query.filter_by(id=search_form.Delete_Or.data).first()
+                if Order != None:
+                    Buy_order.query.filter(Buy_order.id==search_form.Delete_Or.data).delete()
+                    Requisition.query.filter(Requisition.N_Requisition ==Order.Requisition).filter(Requisition.Products_id==Order.Products_id).update({"N_compra": " "})
+                    flash("Orden " + Order.N_compra + " Ha sido borrado exitosamente")
+                    db.session.commit()
+                else:
+                    flash("No existen valores para  borrar")
+
+
+    Final = 0
+    Final_Iva = 0
+
+    Orders = {}
+    for ID,date,N_Compra,Value_U,Value_T,Value_T_Iva,State,Product_id,Provider_id,Requisition_id in  db.session.query(Buy_order.id,
                                                                                                                 Buy_order.date,
                                                                                                                 Buy_order.N_compra,
                                                                                                                 Buy_order.Value_U,
@@ -394,47 +549,13 @@ def Buy_Order_table():
                         Temp['Description'] = Product.Description
 
                         Temp['State'] = State
+                        Final = Final + Value_T
+                        Final_Iva = Final_Iva + Value_T_Iva
 
                         Orders[ID] = Temp
-        return render_template('Buy_Order.html',Inventory = Orders, form=search_form)
+    return render_template('Buy_Order.html',Inventory = Orders, form=search_form, T = Final, T_iva = Final_Iva)
 
-    if request.method == 'POST':
 
-        Orders_two = {}
-
-        Buy_orders = Buy_order.query.filter_by(N_compra=search_form.compra.data).all()
-
-        for Order in Buy_orders:
-
-            Provider_v = Provider.query.filter_by(Identifier=Order.Provider_id).first()
-            Product = Products.query.filter_by(Identifier=Order.Products_id).first()
-            New_Requisition= Requisition.query.filter_by(N_Requisition=Order.Requisition).all()
-
-            for R in New_Requisition:
-                if(R.Products_id == Product.Identifier):
-
-                    Temp = {}
-                    Temp['ID'] = Order.id
-                    Temp['Date'] = Order.date
-                    Temp['Amount'] = R.amount
-                    Temp['Number_Compra'] = Order.N_compra
-                    Temp['Value_U'] = Order.Value_U
-                    Temp['Value_T'] = Order.Value_T
-                    Temp['Value_T_Iva'] = Order.Value_T_Iva
-                    Temp['Requisition'] = R.N_Requisition
-
-                    Temp['Ident'] = Product.Identifier
-                    Temp['Name'] = Provider_v.Name
-                    Temp['Ced'] = Provider_v.Ced
-                    Temp['Address'] = Provider_v.Address
-                    Temp['Units'] = Product.Units
-                    Temp['Description'] = Product.Description
-
-                    Temp['State'] = Order.State
-
-                    Orders_two[Order.id] = Temp
-
-        return render_template('Buy_Order.html',Inventory = Orders_two , form=search_form)
 
 
 @app.route('/Create_Requisition', methods=['GET','POST'])
@@ -442,7 +563,7 @@ def Requisition_work():
 
     R_form = forms.Requisition(request.form)
     R_form.Identifier_P.choices= Get_products()
-    R_form.Identifier_Pro.choices= Get_provider()
+
 
     if request.method == 'POST' and R_form.validate():
         R =Requisition.query.filter_by(N_Requisition=R_form.N_Requisition.data).all()
@@ -457,9 +578,10 @@ def Requisition_work():
 
 
         if(not Flag):
-            New_Requisition = Requisition(Solicitud_name=R_form.Solicitud_Name.data,Ced=R_form.Ced.data,N_Requisition=R_form.N_Requisition.data,Destine=R_form.Destine.data,Date=R_form.Date.data,amount=R_form.amount.data,Products_id=R_form.Identifier_P.data,Provider_id=R_form.Identifier_Pro.data)
+            New_Requisition = Requisition(Solicitud_name=R_form.Solicitud_Name.data,Ced=R_form.Ced.data,N_Requisition=R_form.N_Requisition.data,Destine=R_form.Destine.data,Date=R_form.Date.data,amount=R_form.amount.data,Products_id=R_form.Identifier_P.data,Solicitud_P=R_form.N_Solicitud.data)
             db.session.add(New_Requisition)
             db.session.commit()
+            flash("Creacion exitosa")
 
     return render_template('make_Requisition.html', Inventory=R_form)
 
@@ -468,11 +590,86 @@ def Requisition_work():
 @app.route('/Requisition', methods=['GET','POST'])
 def Requisition_table():
     search_form = forms.Search(request.form)
-    if request.method == 'GET':
-        Rquest = {}
-        for ID,N_Requisition,Name_S,Ced,Destine,Date,amount,N_Compra,N_Remision,Product_id,Provider_id  in  db.session.query(Requisition.id,Requisition.N_Requisition,Requisition.Solicitud_name,Requisition.Ced,Requisition.Destine,Requisition.Date,Requisition.amount,Requisition.N_compra,Requisition.Remision,Requisition.Products_id,Requisition.Provider_id):
 
-                Provider_v = Provider.query.filter_by(Identifier=Provider_id).first()
+    if request.method == 'POST':
+        if(len(search_form.Remision.data)> 0):
+            Remision_s = {}
+            Remisi = Tickets.query.filter_by(Number_remision=search_form.Remision.data).all()
+
+            for R in Remisi:
+                Provider_v = Provider.query.filter_by(Identifier=R.Provider_id).first()
+                Product = Products.query.filter_by(Identifier=R.Products_id).first()
+                Order = Buy_order.query.filter_by(N_compra=R.N_compra).all()
+
+
+
+                for O in Order:
+                    if(O.Products_id==Product.Identifier):
+                        Requisi_s = Requisition.query.filter_by(N_Requisition=O.Requisition).all()
+                        for Rq in Requisi_s:
+
+                            Temp = {}
+                            Temp['ID'] = R.id
+                            Temp['Solicitud']= Rq.Solicitud_name
+                            Temp['Ced']= Rq.Ced
+
+                            Temp['Date'] = R.Date_stored
+
+                            Temp['Ident'] = Product.Identifier
+                            Temp['Description'] = Product.Description
+                            Temp['Amount'] = R.amount
+                            Temp['Units'] = Product.Units
+                            Temp['Number_Solicitud'] = Rq.Solicitud_P
+
+                            Temp['Number_Requisition'] =Rq.N_Requisition
+                            Temp['Number_Compra'] = O.N_compra
+                            Temp['Remision'] = R.Number_remision
+
+                            Remision_s[R.id] = Temp
+            return render_template('Requisition.html',Inventory = Remision_s , form=search_form )
+
+
+        if(len(search_form.Requisicion.data)>0):
+
+            Requisi_new = {}
+            Requisi_s = Requisition.query.filter_by(N_Requisition=search_form.Requisicion.data).all()
+
+            for R in Requisi_s:
+
+                Product = Products.query.filter_by(Identifier=R.Products_id).first()
+
+                Temp = {}
+                Temp['ID'] = R.id
+                Temp['Solicitud']= R.Solicitud_name
+                Temp['Ced']= R.Ced
+
+                Temp['Date'] = R.Date
+
+                Temp['Ident'] = Product.Identifier
+                Temp['Description'] = Product.Description
+                Temp['Amount'] = R.amount
+                Temp['Units'] = Product.Units
+
+
+                Temp['Number_Solicitud'] = R.Solicitud_P
+                Temp['Number_Requisition'] = R.N_Requisition
+                Temp['Number_Compra'] = R.N_compra
+                Temp['Remision'] = R.Remision
+
+                Requisi_new[R.id] = Temp
+            return render_template('Requisition.html',Inventory = Requisi_new , form=search_form )
+        if(len(search_form.Delete_Re.data)>0):
+                R = Requisition.query.filter_by(id = search_form.Delete_Re.data).first()
+                if R != None:
+                    Requisition.query.filter(Requisition.id==search_form.Delete_Re.data).delete()
+                    db.session.commit()
+                    flash("La requisicicon #  " + search_form.Delete_Re.data + " Ha sido borrado exitosamente")
+                else:
+                    flash("No existen valores para  borrar")
+
+    Rquest = {}
+    for ID,N_Requisition,Name_S,Ced,Destine,Date,amount,N_Compra,N_Remision,Product_id,N_Solicitud in  db.session.query(Requisition.id,Requisition.N_Requisition,Requisition.Solicitud_name,Requisition.Ced,Requisition.Destine,Requisition.Date,Requisition.amount,Requisition.N_compra,Requisition.Remision,Requisition.Products_id,Requisition.Solicitud_P):
+
                 Product = Products.query.filter_by(Identifier=Product_id).first()
 
 
@@ -487,58 +684,17 @@ def Requisition_table():
                 Temp['Description'] = Product.Description
                 Temp['Amount'] = amount
                 Temp['Units'] = Product.Units
-
-
-
-                Temp['Provider_Name'] = Provider_v.Name
+                Temp['Number_Solicitud'] = N_Solicitud
 
                 Temp['Number_Requisition'] = N_Requisition
                 Temp['Number_Compra'] = N_Compra
                 Temp['Remision'] = N_Remision
 
                 Rquest[ID] = Temp
-        return render_template('Requisition.html',Inventory = Rquest, form=search_form )
-
-    if request.method == 'POST':
-        Remision_s = {}
-        Remisi = Tickets.query.filter_by(Number_remision=search_form.Remision.data).all()
-
-        for R in Remisi:
-            Provider_v = Provider.query.filter_by(Identifier=R.Provider_id).first()
-            Product = Products.query.filter_by(Identifier=R.Products_id).first()
-            Order = Buy_order.query.filter_by(N_compra=R.N_compra).all()
 
 
 
-            for O in Order:
-                if(O.Products_id==Product.Identifier):
-                    Requisi_s = Requisition.query.filter_by(N_Requisition=O.Requisition).all()
-                    for Rq in Requisi_s:
-
-                        Temp = {}
-                        Temp['ID'] = R.id
-                        Temp['Solicitud']= Rq.Solicitud_name
-                        Temp['Ced']= Rq.Ced
-
-                        Temp['Date'] = R.Date_stored
-
-                        Temp['Ident'] = Product.Identifier
-                        Temp['Description'] = Product.Description
-                        Temp['Amount'] = R.amount
-                        Temp['Units'] = Product.Units
-
-                        Temp['Provider_Name'] = Provider_v.Name
-
-                        Temp['Number_Requisition'] =Rq.N_Requisition
-                        Temp['Number_Compra'] = O.N_compra
-                        Temp['Remision'] = R.Number_remision
-
-                        Remision_s[R.id] = Temp
-        return render_template('Requisition.html',Inventory = Remision_s , form=search_form )
-
-
-
-
+    return render_template('Requisition.html',Inventory = Rquest, form=search_form )
 
 
 
