@@ -47,6 +47,7 @@ class  Departures_ticket(Form):
 
 
 
+
 class Buy_order(Form):
 
     Identifier_P = SelectField('Identificador Producto')
@@ -85,6 +86,8 @@ class Search(Form):
     compra = StringField('Ingrese el numero de compra', [validators.Required(message='falta campo'), validators.length(min=1, max=100)])
     Remision = StringField('Ingrese el numero de remision', [validators.Required(message='falta campo'), validators.length(min=1, max=100)])
     Requisicion = StringField('Ingrese el numero de requisicion', [validators.Required(message='falta campo'), validators.length(min=1, max=100)])
+    Contratista = StringField('Ingrese nombre del Contratista', [validators.Required(message='falta campo'), validators.length(min=1, max=100)])
+
 
     Delete_Re = StringField('Ingrese el ID de la requisicion', [validators.Required(message='falta campo'), validators.length(min=1, max=100)])
     Delete_Or= StringField('Ingrese el ID de Orden de compra', [validators.Required(message='falta campo'), validators.length(min=1, max=100)])

@@ -331,9 +331,10 @@ def Tickets_work():
 
 @app.route('/Despartures', methods=['GET','POST'])
 def Despartures_table():
-
+    search = forms.Search(request.form)
     Del_Sa = forms.Delete(request.form)
     if request.method == 'POST':
+        if(len(Del_Sa.Delete_Sa.data) != 0):
 
             Sali = Departures.query.filter_by(id = Del_Sa.Delete_Sa.data ).first()
             if Sali != None:
@@ -346,6 +347,34 @@ def Despartures_table():
                 flash("Producto " + Del_Sa.Delete_Sa.data + " Ha sido borrado exitosamente")
             else:
                 flash("No existen valores para  borrar")
+
+
+        if(len(search.Contratista.data) !=0):
+
+            Contra = Departures.query.filter_by(builder=search.Contratista.data).all()
+            if(len(Contra)!=0):
+                    for Co in Contra:
+                        Depart_inventory = {}
+                        Product = Products.query.filter_by(Identifier=Co.Products_id).first()
+
+                        Temp = {}
+                        Temp['ID'] = Co.id
+                        Temp['ident'] = Product.Identifier
+                        Temp['Description'] = Product.Description
+                        Temp['Units'] = Product.Units
+                        Temp['Date'] = Co.date
+                        Temp['Amount'] = Co.amount
+                        Temp['Number_vale'] = Co.Number_vale
+                        Temp['builder'] = Co.builder
+                        Temp['Destine'] = Co.Dest
+
+                        Temp['Departures'] = Product.Departures_now
+                        Temp['Balance'] = Product.balance_now
+
+                        Depart_inventory[Co.id] = Temp
+                    return render_template('Despartures.html', Inventory= Depart_inventory, form = Del_Sa, form2 = search)
+            else:
+                flash("No existe el contratista")
 
 
 
@@ -377,7 +406,7 @@ def Despartures_table():
                 Depart_inventory[ID] = Temp
 
 
-    return render_template('Despartures.html', Inventory= Depart_inventory, form = Del_Sa)
+    return render_template('Despartures.html', Inventory= Depart_inventory, form = Del_Sa, form2 = search)
 
 
 
@@ -387,14 +416,15 @@ def Despartures_work():
     Departuresform = forms.Departures_ticket(request.form)
 
     Departuresform.Identifier_P.choices= Get_products()
-    print ("HOLA")
+
+
     if request.method == 'POST' and Departuresform.validate():
 
 
         try:
             Product_now = Products.query.filter_by(Identifier= Departuresform.Identifier_P.data).first()
 
-
+            print (Product_now)
             if (int(Product_now.balance_now) == 0):
                 flash("Imposible, No hay puntillas en bodega")
 
