@@ -1,0 +1,50 @@
+{% extends  'Header.html' %}
+
+{% block content %}
+
+    {% from "_macro.html" import render %}
+
+  <div>
+      <div  class = "container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+
+            <div>
+              <h1>Crear Entrada</h1>
+            </div>
+
+            <form  name="sentMessage" id="contactFrom" method="POST">
+
+            <div  class = "container">
+
+          
+
+                {{render(Tick.Identifier_P, class='form-control')}}
+
+                {{render(Tick.Identifier_Pro, class='form-control')}}
+
+                {{render(Tick.amount, class='form-control')}}
+
+                {{render(Tick.Date_stored, type="date", class='form-control')}}
+
+                {{render(Tick.Number_remision, class='form-control' )}}
+
+                {{render(Tick.N_Orde_Comprar, class='form-control' )}}
+
+
+
+              <br>
+              <div id="success"></div>
+              <div class="row">
+                <div class="form-group col-xs-12">
+                  <button type="submit" class="btn btn-defaul">Send</button>
+
+            </div>
+        </div>
+        </div>
+</form>
+  </div>
+    </div>
+      </div>
+        </div>
+{% endblock %}

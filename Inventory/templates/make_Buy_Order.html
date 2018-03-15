@@ -1,0 +1,57 @@
+{% extends  'Header.html' %}
+
+
+
+{% block content %}
+
+    {% from "_macro.html" import render %}
+
+  <div>
+      <div  class = "container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+
+            <div>
+              <h1>Crear Orden de Compra</h1>
+            </div>
+
+            <form  name="sentMessage" id="contactFrom" method="POST">
+              <div  class = "container">
+                <div class="row">
+                  <div class="col">
+
+                {{render(Inventory.Identifier_P, class='form-control')}}
+</div>
+
+    <div class="col">
+                {{render(Inventory.Identifier_Pro, class='form-control')}}
+</div>
+</div>
+
+<div  class = "container">
+  <div class="row">
+    <div class="col">
+                {{render(Inventory.Date, type="date",class='form-control')}}
+</div>
+
+  <div class="col">
+                {{render(Inventory.N_Compra, class='form-control' )}}
+</div>
+  <div class="col">
+                {{render(Inventory.N_Requisition, class='form-control' )}}
+              </div>
+</div>
+
+                {{render(Inventory.Value_U, class='form-control' )}}
+
+
+              <br>
+              <div id="success"></div>
+              <div class="row">
+                <div class="form-group col-xs-12">
+                  <button type="submit" class="btn btn-defaul">Send</button>
+          </form>
+        </div>
+    </form>
+  </div>
+{% endblock %}
