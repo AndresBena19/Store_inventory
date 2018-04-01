@@ -1,0 +1,101 @@
+{% extends  'Header.html'%}
+{% block search %}
+<div class="topnav-right">
+  <!-- Trigger the modal with a button -->
+  <button type="button"  class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal3">Borrar</button>
+  {% from "_macro.html" import render %}
+  <!-- Modal -->
+  <div class="modal fade" id="myModal3" role="dialog">
+    <div class="modal-dialog">
+
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Busqueda</h4>
+        </div>
+        <div class="modal-body">
+          <form  name="sentMessage" id="contactFrom" method="POST">
+            {{render(form.Delete_En, class='form-control')}}
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-default">Enviar</button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock%}
+{% block content %}
+      <section>
+    <!--for demo wrap-->
+    <h1>Work inventory  (ENTRADAS) </h1>
+    <div class="tbl-header">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <thead>
+          <tr>
+            <tr >
+              <th class="cell100 column1">ID</th>
+              <th class="cell100 column1">Codigo</th>
+
+              <th class="cell100 column3">Descripcion</th>
+              <th class="cell100 column3">Unidad</th>
+              <th class="cell100 column3">Cantidad</th>
+
+              <th class="cell100 column3">fecha de Ingreso Almacen</th>
+              <th class="cell100 column3">proveedor</th>
+              <th class="cell100 column3">Numero de Remision</th>
+              <th class="cell100 column3">Numero de compra</th>
+
+              <th class="cell100 column3">Entrada</th>
+              <th class="cell100 column3">Saldo</th>
+          </tr>
+        </thead>
+      </table>
+    </div>
+    <div class="tbl-content">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tbody>
+
+            {% for key in Inventory.keys() %}
+
+              <tr>
+                <td>{{Inventory[key]['id']}}</td>
+                <td>{{Inventory[key]['Ident']}}</td>
+                <td>{{Inventory[key]['Description']}}</td>
+                <td>{{Inventory[key]['Units']}}</td>
+                <td>{{Inventory[key]['Amount']}}</td>
+
+                <td>{{Inventory[key]['Date_stored']}}</td>
+                <td>{{Inventory[key]['Provider']}}</td>
+                <td>{{Inventory[key]['Number_remision']}}</td>
+                <td>{{Inventory[key]['Purchase_number']}}</td>
+
+
+                <td>{{Inventory[key]['Tickets']}}</td>
+                <td>{{Inventory[key]['Balance']}}</td>
+
+              </tr>
+
+            {% endfor %}
+
+
+
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+{% endblock %}
+
+  {% block footer %}
+
+  <div class="topnav">
+    <a href="http://127.0.0.1:8888/Create_Tickets">Crear Entrada</a>
+    </div>
+
+
+  {% endblock%}
