@@ -165,7 +165,7 @@ def Tickets_table():
                     Entrada = Tickets.query.filter_by(id=Del_form.Delete_En.data).first()
                     if Entrada != None:
                         Product = Products.query.filter_by(Identifier=Entrada.Products_id).first()
-                        print(Entrada.N_Requisition)
+                        print("fuck",Entrada.N_Requisition)
 
                         Order = Buy_order.query.filter(Buy_order.N_compra==Entrada.N_compra).filter(Buy_order.Requisition == Entrada.N_Requisition).all()
 
@@ -203,16 +203,7 @@ def Tickets_table():
                                                     else:
                                                         O.State = O.State - Entrada.amount
 
-
-
-
-
-                                    print("evaluand")
-                                    print(R)
-                                    print(R.Remision)
                                     REMI = R.Remision.split('+')
-
-
                                     Result = []
 
                                     for i in REMI:
@@ -228,7 +219,7 @@ def Tickets_table():
 
 
                                     Resultb = [str(i) for i in Result ]
-                                    print(Resultb)
+
                                     R.Remision = '+'.join(Resultb)
 
 
@@ -418,7 +409,7 @@ def Despartures_table():
 
         if(len(search.Contratista.data) !=0):
             print(search.Contratista.data)
-            Contra = Departures.query.filter_by(builder=str(search.Contratista.data)).all()
+            Contra = Departures.query.filter_by(builder=search.Contratista.data).all()
             print(Contra)
             if(len(Contra)!=0):
                     Depart_inventory = {}
