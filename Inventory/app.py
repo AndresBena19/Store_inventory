@@ -156,10 +156,51 @@ def Provider_work():
 
 @app.route('/Tickets', methods=['GET','POST'])
 def Tickets_table():
-
+    search = forms.Search(request.form)
     Del_form = forms.Search(request.form)
 
     if request.method == 'POST':
+
+            if (len(search.Remision.data) > 0):
+                Remision_s = {}
+                Remisi = Tickets.query.filter_by(Number_remision=search.Remision.data).all()
+                print(Remisi)
+                for R in Remisi:
+                    Provider_v = Provider.query.filter_by(Identifier=R.Provider_id).first()
+                    Product = Products.query.filter_by(Identifier=R.Products_id).first()
+                    Order = Buy_order.query.filter_by(N_compra=R.N_compra).all()
+
+                    for O in Order:
+                        if (O.Products_id == Product.Identifier):
+                            Requisi_s = Requisition.query.filter_by(N_Requisition=O.Requisition).all()
+                            for Rq in Requisi_s:
+                                Temp = {}
+                                Temp['id'] = R.id
+                                Temp['Solicitud'] = Rq.Solicitud_name
+                                Temp['Ced'] = Rq.Ced
+                                Temp['Provider'] = Provider_v.Name
+
+                                Temp['Date_stored'] = R.Date_stored
+
+                                Temp['Ident'] = Product.Identifier
+                                Temp['Description'] = Product.Description
+                                Temp['Amount'] = R.amount
+                                Temp['Units'] = Product.Units
+                                Temp['Number_Solicitud'] = Rq.Solicitud_P
+
+
+                                Temp['Number_Requisition'] = Rq.N_Requisition
+                                Temp['Purchase_number'] = O.N_compra
+                                Temp['Number_remision'] = str(R.Number_remision).split(
+                                    '+') if R.Number_remision != "" else "Ninguna Remision"
+
+                                Temp['Tickets'] = Product.Tickets_now
+                                Temp['Balance'] = Product.balance_now
+
+                                Remision_s[R.id] = Temp
+                print(Remision_s)
+                return render_template('Tickets.html', Inventory=Remision_s, form = Del_form , form2=search)
+
             if(len(Del_form.Delete_En.data)>0):
 
                     Entrada = Tickets.query.filter_by(id=Del_form.Delete_En.data).first()
@@ -222,10 +263,6 @@ def Tickets_table():
 
                                     R.Remision = '+'.join(Resultb)
 
-
-
-
-
                             except Exception as e:
                                 print(e)
 
@@ -274,7 +311,7 @@ def Tickets_table():
 
                 Tickets_inventory[ID] = Temp
 
-    return render_template('Tickets.html', Inventory=Tickets_inventory , form = Del_form )
+    return render_template('Tickets.html', Inventory=Tickets_inventory , form = Del_form , form2=search)
 
 
 @app.route('/Create_Tickets', methods=['GET','POST'])
@@ -495,7 +532,7 @@ def Despartures_work():
 
             else:
                 print("entr")
-                Despartur = Departures(date= Departuresform.Date.data,amount = Departuresform.amount.data, Number_vale= Departuresform.N_vale.data,builder=Departuresform.builder.data,Dest=Departuresform.Destine.data,N_Solicitud = Departuresform.Solicitud.data,Products_id=Departuresform.Identifier_P.data)
+                Despartur = Departures(date= Departuresform.Date.data,amount = Departuresform.amount.data, Number_vale= Departuresform.N_vale.data,builder=Departuresform.builder.data.strip(),Dest=Departuresform.Destine.data,N_Solicitud = Departuresform.Solicitud.data,Products_id=Departuresform.Identifier_P.data)
                 db.session.add(Despartur)
                 db.session.commit()
 
