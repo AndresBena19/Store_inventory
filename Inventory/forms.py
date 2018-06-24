@@ -1,12 +1,7 @@
 from wtforms import Form
 from wtforms import *
-
 from models import *
 from wtforms import validators
-
-
-
-
 
 
 class  formlogin(Form):
@@ -47,10 +42,6 @@ class  Departures_ticket(Form):
     Solicitud = StringField('Numero de Solicitud', [validators.Required(message='falta campo'), validators.length(min=1, max=100)])
 
 
-
-
-
-
 class Buy_order(Form):
 
     Identifier_P = SelectField('Identificador Producto')
@@ -62,7 +53,6 @@ class Buy_order(Form):
     N_Requisition = StringField('Numero de Requisicion', [validators.Required(message='falta campo'), validators.length(min=1, max=100)])
 
     Value_U = StringField('Valor Unitario', [validators.Required(message='falta campo'), validators.length(min=1, max=100)])
-
 
 
 class Requisition(Form):
@@ -95,6 +85,8 @@ class Search(Form):
     Delete_Re = StringField('Ingrese el ID de la requisicion', [validators.Required(message='falta campo'), validators.length(min=1, max=100)])
     Delete_Or= StringField('Ingrese el ID de Orden de compra', [validators.Required(message='falta campo'), validators.length(min=1, max=100)])
     Delete_En= StringField('Ingrese el ID de entrada', [validators.Required(message='falta campo'), validators.length(min=1, max=100)])
+
+
 class Delete(Form):
     Delete_P = StringField('Ingrese el ID del producto', [validators.Required(message='falta campo'), validators.length(min=1, max=100)])
     Delete_Pro =  StringField('Ingrese el ID del Provedor', [validators.Required(message='falta campo'), validators.length(min=1, max=100)])
