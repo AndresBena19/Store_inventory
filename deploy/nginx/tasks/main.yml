@@ -1,2 +1,26 @@
 ---
-# tasks file for nginx
+- name: Update and install NGINX with package manager (APT)
+  apt:
+    name: nginx
+    state: present
+    update_cache: yes
+
+# Don't WORK on docker !!!
+- name: Start nginx server
+  service:
+    name: nginx
+    state: started
+
+#- name: Start nginx server
+#  command: service nginx start
+#  register: verify
+
+#- name: output
+#  debug:
+#    msg: "{{ verify.stdout }}"
+
+
+- name: Enabled nginx service
+  service:
+    name: nginx
+    enabled: yes

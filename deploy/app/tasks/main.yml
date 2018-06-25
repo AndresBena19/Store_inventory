@@ -1,2 +1,8 @@
 ---
-# tasks file for app
+- name: Create APP web directory
+  file:
+   path: /usr/share/nginx/html/app
+   state: directory
+
+- import_tasks: enviroment.yml
+- import_tasks: app.yml

@@ -2,9 +2,9 @@
 echo "Coping templates files to deploy";
 cp -r Inventory/templates/ deploy/app/templates
 
-echo "Sort files on deploy/templates";
-mv deploy/app/templates/templates/* deploy/app/templates
-rm -r deploy/app/templates/templates/
+# echo "Sort files on deploy/templates";
+# mv deploy/app/templates/templates/* deploy/app/templates
+# rm -r deploy/app/templates/templates/
 
 echo "Sucessfully, next coping static files to deploy";
 cp -r Inventory/static/ deploy/app/files
