@@ -15,16 +15,9 @@ from config import DBconfig
 
 from models import *
 
-
-
-
-
 app = Flask(__name__)
-db.init_app(app)
 app.config.from_object(DBconfig)
-
-
-
+db.init_app(app)
 
 def Get_products():
     Temp = {}
