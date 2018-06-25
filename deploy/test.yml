@@ -1,6 +1,0 @@
----
-  - hosts: server
-    remote_user: root
-    roles:
-      - nginx
-      - app
