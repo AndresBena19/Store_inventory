@@ -7,18 +7,10 @@ server
   root /usr/share/nginx/html/app;
   index index.html;
 
-  location /static
-  {
-    alias /opt/app/;
-    expires 30d;
+  location / {
+    include proxy_params;
+    proxy_pass http://unix:/run/gunicorn/socket;
   }
 
   error_page 404 =200 @error;
-
-  location @error
-  {
-   index error.html;
-   rewrite ^ /;
-  }
-
 }

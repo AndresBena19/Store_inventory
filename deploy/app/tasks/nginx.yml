@@ -1,0 +1,23 @@
+---
+- name: Delete link to default nginx file
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: Delete default nginx file
+  file:
+    path: /etc/nginx/sites-available/default
+    state: absent
+
+- name: Upload nginx file configuration
+  template:
+    src: templates/inventory.j2
+    dest: /etc/nginx/sites-available/inventory
+
+- name: Make symbolink
+  file:
+    src: /etc/nginx/sites-available/inventory
+    dest: /etc/nginx/sites-enabled/inventory
+    state: link
+  notify:
+    - restart nginx

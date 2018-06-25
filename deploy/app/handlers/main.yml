@@ -1,2 +1,10 @@
 ---
-# handlers file for app
+- name: Restart Gunicorn
+  systemd:
+    name: gunicorn
+    state: restarted
+
+- name: restart nginx
+  systemd:
+    name: nginx
+    state: restarted

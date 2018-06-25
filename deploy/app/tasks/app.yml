@@ -11,11 +11,23 @@
     key_file: /opt/github_key
     accept_hostkey: yes  # '-o StrictHostKeyChecking=no'
     version: deploy_ver
+    force: yes
+
+- name: Verify virual environment
+  stat:
+    path: /opt/app/env
+  register: venv
+
+- name: output
+  debug:
+    msg: "{{ venv }}"
+
 
 - name: Create project virtualenv
   command: virtualenv -p python3.6 env
   args:
     chdir: /opt/app/
+  when: not venv.stat.exists
 
 - name: Install gunicorn
   pip:
@@ -26,3 +38,21 @@
   pip:
     requirements: /opt/app/Inventory/requirements.txt
     virtualenv: /opt/app/env
+
+- name: Upload gunicorn.service file
+  template:
+    src: templates/gunicorn.service.j2
+    dest: /etc/systemd/system/gunicorn.service
+
+- name: Make symbolink between gunicorn and multi-user.agents Service
+  file:
+    src: /etc/systemd/system/gunicorn.service
+    dest: /etc/systemd/system/multi-user.target.wants/gunicorn.service
+    state: link
+
+- name: Start and enable gunicorn service
+  systemd:
+    name: gunicorn
+    state: started
+    enabled: yes
+    daemon_reload: yes

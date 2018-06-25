@@ -1,0 +1,14 @@
+[Unit]
+Description=Gunicorn service to Inventory app
+After=network.target
+
+[Service]
+PIDFile=/run/gunicorn/pid
+User=root
+Group=www-data
+WorkingDirectory=/opt/app/Inventory
+Environment="PATH=/opt/app/env/bin"
+ExecStart=/opt/app/env/bin/gunicorn --pid /run/gunicorn/pid  --workers 2 --bind unix:/run/gunicorn/socket wsgi:application
+
+[Install]
+WantedBy=multi-user.target
